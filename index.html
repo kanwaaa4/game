@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ゴキブリたたきゲーム</title>
+<style>
+    body {
+        text-align: center;
+        font-family: sans-serif;
+        background: #222;
+        color: white;
+    }
+
+    h1 {
+        margin-top: 20px;
+    }
+
+    #game {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        grid-gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .hole {
+        width: 120px;
+        height: 120px;
+        background: #444;
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .goki {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        background: brown;
+        border-radius: 50%;
+        top: 30px;
+        left: 30px;
+        display: none;
+    }
+
+    .goki::after {
+        content: "🪳";
+        font-size: 40px;
+        position: absolute;
+        top: 5px;
+        left: 10px;
+    }
+
+    #score {
+        font-size: 24px;
+        margin-top: 20px;
+    }
+
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+
+<h1>ゴキブリたたきゲーム</h1>
+<div id="score">スコア: 0</div>
+<button onclick="startGame()">スタート</button>
+
+<div id="game"></div>
+
+<script>
+    const game = document.getElementById("game");
+    const scoreDisplay = document.getElementById("score");
+
+    let score = 0;
+    let gameInterval;
+
+    // マス作成
+    for (let i = 0; i < 9; i++) {
+        const hole = document.createElement("div");
+        hole.classList.add("hole");
+
+        const goki = document.createElement("div");
+        goki.classList.add("goki");
+
+        hole.appendChild(goki);
+
+        hole.addEventListener("click", () => {
+            if (goki.style.display === "block") {
+                score++;
+                scoreDisplay.textContent = "スコア: " + score;
+                goki.style.display = "none";
+            }
+        });
+
+        game.appendChild(hole);
+    }
+
+    function randomGoki() {
+        const holes = document.querySelectorAll(".goki");
+        holes.forEach(g => g.style.display = "none");
+
+        const index = Math.floor(Math.random() * holes.length);
+        holes[index].style.display = "block";
+    }
+
+    function startGame() {
+        score = 0;
+        scoreDisplay.textContent = "スコア: 0";
+
+        clearInterval(gameInterval);
+
+        gameInterval = setInterval(() => {
+            randomGoki();
+        }, 600);
+
+        // 10秒で終了
+        setTimeout(() => {
+            clearInterval(gameInterval);
+            alert("ゲーム終了！スコア: " + score);
+        }, 10000);
+    }
+</script>
+
+</body>
+</html>
