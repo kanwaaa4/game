@@ -2,17 +2,26 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ゴキブリたたきゲーム</title>
+<title>ゴキブリたたきゲーム（進化版）</title>
 <style>
     body {
         text-align: center;
         font-family: sans-serif;
-        background: #222;
+        margin: 0;
         color: white;
+
+        /* 家の中っぽい背景 */
+        background: linear-gradient(#cfcfcf 60%, #8b5a2b 60%);
     }
 
     h1 {
         margin-top: 20px;
+        color: #222;
+    }
+
+    #ui {
+        color: #222;
+        font-weight: bold;
     }
 
     #game {
@@ -26,38 +35,34 @@
     .hole {
         width: 120px;
         height: 120px;
-        background: #444;
+        background: #555;
         border-radius: 10px;
         position: relative;
         cursor: pointer;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
     }
 
     .goki {
         position: absolute;
         width: 60px;
         height: 60px;
-        background: brown;
-        border-radius: 50%;
         top: 30px;
         left: 30px;
         display: none;
+        transition: transform 0.1s;
     }
 
     .goki::after {
         content: "🪳";
         font-size: 40px;
-        position: absolute;
-        top: 5px;
-        left: 10px;
     }
 
-    #score {
-        font-size: 24px;
-        margin-top: 20px;
+    .hit {
+        transform: scale(0.7) rotate(20deg);
     }
 
     button {
-        margin-top: 15px;
+        margin-top: 10px;
         padding: 10px 20px;
         font-size: 16px;
     }
@@ -65,8 +70,13 @@
 </head>
 <body>
 
-<h1>ゴキブリたたきゲーム</h1>
-<div id="score">スコア: 0</div>
+<h1>ゴキブリたたきゲーム🏠</h1>
+
+<div id="ui">
+    <div id="score">スコア: 0</div>
+    <div id="level">レベル: 1</div>
+</div>
+
 <button onclick="startGame()">スタート</button>
 
 <div id="game"></div>
@@ -74,11 +84,14 @@
 <script>
     const game = document.getElementById("game");
     const scoreDisplay = document.getElementById("score");
+    const levelDisplay = document.getElementById("level");
 
     let score = 0;
+    let level = 1;
     let gameInterval;
+    let speed = 800;
 
-    // マス作成
+    // マス生成
     for (let i = 0; i < 9; i++) {
         const hole = document.createElement("div");
         hole.classList.add("hole");
@@ -92,7 +105,26 @@
             if (goki.style.display === "block") {
                 score++;
                 scoreDisplay.textContent = "スコア: " + score;
+
+                goki.classList.add("hit");
+
+                setTimeout(() => {
+                    goki.classList.remove("hit");
+                }, 100);
+
                 goki.style.display = "none";
+
+                // レベルアップ（5点ごと）
+                if (score % 5 === 0) {
+                    level++;
+                    levelDisplay.textContent = "レベル: " + level;
+
+                    // 速さアップ（最低200msまで）
+                    speed = Math.max(200, speed - 80);
+
+                    clearInterval(gameInterval);
+                    gameInterval = setInterval(randomGoki, speed);
+                }
             }
         });
 
@@ -100,28 +132,30 @@
     }
 
     function randomGoki() {
-        const holes = document.querySelectorAll(".goki");
-        holes.forEach(g => g.style.display = "none");
+        const gokis = document.querySelectorAll(".goki");
+        gokis.forEach(g => g.style.display = "none");
 
-        const index = Math.floor(Math.random() * holes.length);
-        holes[index].style.display = "block";
+        const index = Math.floor(Math.random() * gokis.length);
+        gokis[index].style.display = "block";
     }
 
     function startGame() {
         score = 0;
+        level = 1;
+        speed = 800;
+
         scoreDisplay.textContent = "スコア: 0";
+        levelDisplay.textContent = "レベル: 1";
 
         clearInterval(gameInterval);
 
-        gameInterval = setInterval(() => {
-            randomGoki();
-        }, 600);
+        gameInterval = setInterval(randomGoki, speed);
 
-        // 10秒で終了
+        // 15秒で終了
         setTimeout(() => {
             clearInterval(gameInterval);
-            alert("ゲーム終了！スコア: " + score);
-        }, 10000);
+            alert("ゲーム終了！スコア: " + score + " / レベル: " + level);
+        }, 15000);
     }
 </script>
 
